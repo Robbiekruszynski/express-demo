@@ -29,11 +29,8 @@ app.get("/api/courses", (req, res) => {
 app.post("/api/courses", (req, res) => {
   const { error } = validateCourse(req.body);
   //   const result = validateCourse(req.body);
+  if (error) return res.status(400).send(result.error.details[0].message);
 
-  if (error) {
-    res.status(400).send(result.error.details[0].message);
-    return;
-  }
   const course = {
     id: courses.length + 1,
     name: req.body.name
@@ -53,10 +50,7 @@ app.put("/api/course/:id", (req, res) => {
   const { error } = validateCourse(req.body);
   //   const result = validateCourse(req.body);
 
-  if (error) {
-    res.status(400).send(result.error.details[0].message);
-    return;
-  }
+  if (error) return res.status(400).send(result.error.details[0].message);
 
   //update course
   //return the updated course
@@ -67,12 +61,11 @@ app.put("/api/course/:id", (req, res) => {
 
 app.delete("/api/courses/:id", (req, res) => {
   const course = courses.find(c => c.id === parseInt(req.params.id));
-  if (!course) res.status(404).send("this was not found");
-
-  //to delete a course
-  const index = courses.indecOf(course);
-  courses.slice(index, 1);
+  if (!course) return res.status(404).send("this was not found");
   res.send(course);
+  //to delete a course
+  //   const index = courses.indecOf(course);
+  //   courses.slice(index, 1);
 });
 
 //look into why arrow function ES6 doesnt work for this function
