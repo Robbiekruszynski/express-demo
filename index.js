@@ -27,17 +27,10 @@ app.get("/api/courses", (req, res) => {
 });
 
 app.post("/api/courses", (req, res) => {
-  const schema = {
-    name: Joi.string()
-      .min(3)
-      .required()
-  };
+  const { error } = validateCourse(req.body);
+  //   const result = validateCourse(req.body);
 
-  const result = Joi.validate(req.body, schema);
-  //validation
-  if (result.error) {
-    //400 bad request
-    //adding .details[0].message makes a more user friendly error message
+  if (error) {
     res.status(400).send(result.error.details[0].message);
     return;
   }
@@ -56,8 +49,11 @@ app.put("/api/course/:id", (req, res) => {
   const course = courses.find(c => c.id === parseInt(req.params.id));
   if (!course) res.status(404).send("this was not found");
 
-  const result = validateCourse(req.body);
-  if (result.error) {
+  //object destructering
+  const { error } = validateCourse(req.body);
+  //   const result = validateCourse(req.body);
+
+  if (error) {
     res.status(400).send(result.error.details[0].message);
     return;
   }
@@ -65,6 +61,17 @@ app.put("/api/course/:id", (req, res) => {
   //update course
   //return the updated course
   course.name = req.body.name;
+  res.send(course);
+});
+////////////delete a course////////////
+
+app.delete("/api/courses/:id", (req, res) => {
+  const course = courses.find(c => c.id === parseInt(req.params.id));
+  if (!course) res.status(404).send("this was not found");
+
+  //to delete a course
+  const index = courses.indecOf(course);
+  courses.slice(index, 1);
   res.send(course);
 });
 
