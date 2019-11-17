@@ -1,5 +1,11 @@
+//require files should go on the very top
+
+const Joi = require("joi");
 const express = require("express");
 const app = express();
+
+//adding middleware
+app.use(express.json());
 
 // app.get()
 // app.post()
@@ -18,6 +24,28 @@ app.get("/", (req, res) => {
 
 app.get("/api/courses", (req, res) => {
   res.send(courses);
+});
+
+app.post("/api/courses", (req, res) => {
+  const schema = {
+    name: Joi.string()
+      .min(3)
+      .required()
+  };
+
+  const result = Joi.validate(req.body, schema);
+  //validation
+  if (result.error) {
+    //400 bad request
+    res.status(400).send(result.error);
+    return;
+  }
+  const course = {
+    id: courses.length + 1,
+    name: req.body.name
+  };
+  courses.push(course);
+  res.send(course);
 });
 
 //(req, res = route handler function)
