@@ -37,7 +37,8 @@ app.post("/api/courses", (req, res) => {
   //validation
   if (result.error) {
     //400 bad request
-    res.status(400).send(result.error);
+    //adding .details[0].message makes a more user friendly error message
+    res.status(400).send(result.error.details[0].message);
     return;
   }
   const course = {
@@ -47,6 +48,36 @@ app.post("/api/courses", (req, res) => {
   courses.push(course);
   res.send(course);
 });
+
+////////////adding a course////////////
+app.put("/api/course/:id", (req, res) => {
+  //look up the course
+  //if doesnt exist, return 404
+  const course = courses.find(c => c.id === parseInt(req.params.id));
+  if (!course) res.status(404).send("this was not found");
+
+  const result = validateCourse(req.body);
+  if (result.error) {
+    res.status(400).send(result.error.details[0].message);
+    return;
+  }
+
+  //update course
+  //return the updated course
+  course.name = req.body.name;
+  res.send(course);
+});
+
+//look into why arrow function ES6 doesnt work for this function
+//return seems to throw an error
+function validateCourse(course) {
+  const schema = {
+    name: Joi.string()
+      .min(3)
+      .required()
+  };
+  return Joi.validate(course, schema);
+}
 
 //(req, res = route handler function)
 
